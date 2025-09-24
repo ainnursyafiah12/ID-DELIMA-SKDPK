@@ -95,7 +95,7 @@
   <script>
     async function semakID() {
       let nama = document.getElementById("nama").value.trim();
-      let kelas = document.getElementById("kelas").value;
+      let kelas = document.getElementById("kelas").value.trim();
       let resultBox = document.getElementById("result");
 
       if (!nama || !kelas) {
@@ -113,10 +113,11 @@
         let data = await response.text();
         let rows = data.split("\n").map(r => r.split(","));
 
-        // Cari data ikut nama & kelas (case insensitive)
+        // Cari data ikut nama & kelas (ignore space + case insensitive)
         let found = rows.find(r =>
-          r[0].toUpperCase() === nama.toUpperCase() &&
-          r[1].toUpperCase() === kelas.toUpperCase()
+          r[0] && r[1] &&
+          r[0].trim().toUpperCase() === nama.toUpperCase() &&
+          r[1].trim().toUpperCase() === kelas.toUpperCase()
         );
 
         if (found) {
@@ -124,10 +125,10 @@
           resultBox.className = "result success";
           resultBox.innerHTML = `
             ✅ Rekod dijumpai!<br><br>
-            <b>Nama:</b> ${found[0]} <br>
-            <b>Kelas:</b> ${found[1]} <br>
-            <b>ID DELIMa:</b> ${found[2]} <br>
-            <b>Password:</b> ${found[3]}
+            <b>Nama:</b> ${found[0].trim()} <br>
+            <b>Kelas:</b> ${found[1].trim()} <br>
+            <b>ID DELIMa:</b> ${found[2] ? found[2].trim() : "-"} <br>
+            <b>Password:</b> ${found[3] ? found[3].trim() : "-"}
           `;
         } else {
           resultBox.style.display = "block";
