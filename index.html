@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <title>Portal Semakan ID DELIMa - SK Dato' Panglima Kinta</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #ffffff, #cce0ff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      width: 400px;
+      text-align: center;
+    }
+    h2 {
+      color: #004080;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      color: #004080;
+      display: block;
+      margin: 12px 0 5px;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #004080;
+      font-size: 14px;
+    }
+    button {
+      background: #004080;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0066cc;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      display: none;
+    }
+    .success {
+      background: #e6f7ff;
+      border: 1px solid #004080;
+      color: #004080;
+    }
+    .error {
+      background: #ffe6e6;
+      border: 1px solid #cc0000;
+      color: #cc0000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Portal Semakan ID DELIMa<br>SK Dato' Panglima Kinta</h2>
+    <label for="nama">Nama Penuh Murid</label>
+    <input type="text" id="nama" placeholder="Masukkan Nama Penuh">
+
+    <label for="kelas">Pilih Kelas</label>
+    <select id="kelas">
+      <option value="">-- Pilih Kelas --</option>
+      <option>1DELIMA</option>
+      <option>1ZAMRUD</option>
+      <option>2DELIMA</option>
+      <option>2ZAMRUD</option>
+      <option>3DELIMA</option>
+      <option>4DELIMA</option>
+      <option>5DELIMA</option>
+      <option>6DELIMA</option>
+      <option>6ZAMRUD</option>
+    </select>
+
+    <button onclick="semakID()">Semak ID DELIMa</button>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    async function semakID() {
+      let nama = document.getElementById("nama").value.trim();
+      let kelas = document.getElementById("kelas").value;
+      let resultBox = document.getElementById("result");
+
+      if (!nama || !kelas) {
+        resultBox.style.display = "block";
+        resultBox.className = "result error";
+        resultBox.innerHTML = "⚠️ Sila masukkan nama penuh dan pilih kelas.";
+        return;
+      }
+
+      // Link Google Sheet CSV cikgu
+      let sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQDRyx4PEgVMmfolLOoSsRKuE-zAH3FKwH9rHfjgpIxJMz3-bhVpyljvdzLHp45MVgosYWIqj8PH7FX/pub?output=csv";
+
+      try {
+        let response = await fetch(sheetURL);
+        let data = await response.text();
+        let rows = data.split("\n").map(r => r.split(","));
+
+        // Cari data ikut nama & kelas (case insensitive)
+        let found = rows.find(r =>
+          r[0].toUpperCase() === nama.toUpperCase() &&
+          r[1].toUpperCase() === kelas.toUpperCase()
+        );
+
+        if (found) {
+          resultBox.style.display = "block";
+          resultBox.className = "result success";
+          resultBox.innerHTML = `
+            ✅ Rekod dijumpai!<br><br>
+            <b>Nama:</b> ${found[0]} <br>
+            <b>Kelas:</b> ${found[1]} <br>
+            <b>ID DELIMa:</b> ${found[2]} <br>
+            <b>Password:</b> ${found[3]}
+          `;
+        } else {
+          resultBox.style.display = "block";
+          resultBox.className = "result error";
+          resultBox.innerHTML = "❌ Rekod tidak dijumpai. Sila semak ejaan nama atau kelas.";
+        }
+      } catch (err) {
+        resultBox.style.display = "block";
+        resultBox.className = "result error";
+        resultBox.innerHTML = "⚠️ Ralat capaian data. Sila hubungi guru.";
+      }
+    }
+  </script>
+</body>
+</html>
